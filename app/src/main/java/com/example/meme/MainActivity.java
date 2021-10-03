@@ -3,11 +3,13 @@ package com.example.meme;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Notification;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -25,14 +27,20 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
-    Button NextButton, ShareButton;
+    Button NextButton,ShareButton;
     String CurrentUrl=null;
+    private ProgressBar spinner;
+    String previousUrl=null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
+
+        spinner = findViewById(R.id.spinner);
+
 
 
         imageView = findViewById(R.id.imgmeme);
@@ -41,12 +49,15 @@ public class MainActivity extends AppCompatActivity {
         NextButton = findViewById(R.id.btnNext);
         ShareButton = findViewById(R.id.btnShare);
 
+
         NextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 lodeImg();
             }
         });
+
+
 
         ShareButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void lodeImg(){
+//        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//        progress.show();
+        spinner.setVisibility(View.VISIBLE);
         RequestQueue queue = MySingleton.getInstance(this.getApplicationContext()).
                 getRequestQueue();
 
@@ -74,10 +88,13 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                      //  textView.setText("Response: " + response.toString());
+                        //  textView.setText("Response: " + response.toString());
                         try {
                             CurrentUrl = response.getString("url");
+                            //progress.dismiss();
+                            spinner.setVisibility(View.GONE);
                             Glide.with(MainActivity.this).load(CurrentUrl).into(imageView);
+                            previousUrl = CurrentUrl;
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
